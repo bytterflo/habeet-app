@@ -687,10 +687,10 @@
 <!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-  // Сюда добавили onAuthStateChanged (наш шпион)
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
   from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, collection, query, where, getDocs, getDoc } 
+  // ВАЖНО: Добавили onSnapshot для живой магии!
+  import { getFirestore, doc, setDoc, collection, query, where, getDocs, onSnapshot } 
   from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -715,34 +715,36 @@
   window.where = where;
   window.getDocs = getDocs;
 
-  window.syncDataFromCloud = async function(uid) {
-    try {
-      const docSnap = await getDoc(doc(db, "user_data", uid));
+  // === МАГИЯ ЖИВОЙ СИНХРОНИЗАЦИИ (КАК В GOOGLE DOCS) ===
+  window.startRealtimeSync = function(uid) {
+    onSnapshot(doc(db, "user_data", uid), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
+        
+        // Тихо сохраняем всё в память
         if (data.habits) localStorage.setItem('habeeHabits_' + uid, JSON.stringify(data.habits));
         if (data.schedules) localStorage.setItem('habeeSchedules_' + uid, JSON.stringify(data.schedules));
         if (data.score !== undefined) localStorage.setItem('habeeHabitScore_' + uid, String(data.score));
+
+        // Проверяем, не печатаешь ли ты текст прямо сейчас (чтобы не сбить клавиатуру)
+        const isTyping = document.activeElement && 
+                         (document.activeElement.tagName === 'INPUT' || 
+                          document.activeElement.getAttribute('contenteditable') === 'true');
+        
+        // Если не печатаешь — мгновенно обновляем экран!
+        if (!isTyping) {
+          if (typeof initHabits === 'function') initHabits();
+          if (typeof initPlanner === 'function') initPlanner();
+        }
       }
-    } catch (e) {
-      console.error("Sync error", e);
-    }
+    });
   };
 
-  // === ВОЛШЕБНЫЙ АВТО-СИНХРОНИЗАТОР ===
-  // Срабатывает сам в фоне, когда открывается сайт
-onAuthStateChanged(auth, async (user) => {
+  onAuthStateChanged(auth, (user) => {
     if (user) {
-      console.log("Пользователь опознан, качаем данные...");
-      await window.syncDataFromCloud(user.uid);
-      
-      // Перезапускаем инициализацию, чтобы данные из localStorage попали на экран
+      console.log("Включаем живую синхронизацию...");
+      window.startRealtimeSync(user.uid);
       if (typeof loadProfile === 'function') loadProfile();
-      if (typeof initHabits === 'function') initHabits();
-      if (typeof initPlanner === 'function') {
-         console.log("Обновляем Планнер новыми данными...");
-         initPlanner(); 
-      }
     }
   });
 
@@ -755,17 +757,14 @@ onAuthStateChanged(auth, async (user) => {
         name: name, email: email, major: "", createdAt: new Date().toISOString()
       });
       alert("Registered!");
-      loadProfile(); initHabits(); initPlanner();
       showScreen('profile-screen');
     } catch (error) { alert(error.message); }
   }
 
   window.login = function(email, password) {
     signInWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        await window.syncDataFromCloud(userCredential.user.uid);
+      .then((userCredential) => {
         alert("Logged in!");
-        loadProfile(); initHabits(); initPlanner();
         showScreen('habits-screen');
       })
       .catch(error => alert(error.message));
