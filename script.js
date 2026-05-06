@@ -719,12 +719,20 @@ function getSchedules() {
 }
 
 function saveSchedules(schedules) {
-  localStorage.setItem(getUserKey('habeeSchedules'), JSON.stringify(schedules));
-  // Отправка в облако
-  if (window.auth && window.auth.currentUser && window.setDoc) {
-    window.setDoc(window.doc(window.db, "user_data", window.auth.currentUser.uid), {
+  const uid = window.auth?.currentUser?.uid;
+  const key = getUserKey('habeeSchedules');
+  
+  // 1. Сохраняем локально в браузер
+  localStorage.setItem(key, JSON.stringify(schedules));
+
+  // 2. СРАЗУ отправляем в облако Firebase
+  if (uid && window.db && window.setDoc) {
+    console.log("Отправка Планнера в облако..."); // для отладки
+    window.setDoc(window.doc(window.db, "user_data", uid), {
       schedules: schedules
-    }, { merge: true }).catch(e => console.log("Planner cloud error:", e));
+    }, { merge: true })
+    .then(() => console.log("Планнер успешно в облаке!"))
+    .catch(e => console.error("Ошибка Планнера:", e));
   }
 }
 
