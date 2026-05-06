@@ -2512,3 +2512,20 @@ select:disabled {
   cursor: pointer;
   line-height: 1;
 }
+
+/* --- ЖЕЛЕЗОБЕТОННЫЙ ФИКС ДЛЯ ПАНЕЛИ --- */
+.planner-panels {
+  right: 58px !important;
+  width: 270px !important; 
+}
+
+.planner-panel {
+  right: 0 !important; /* Убиваем двойной отступ навсегда */
+  width: 100% !important;
+}
+
+@media (max-width: 380px) {
+  .planner-panels {
+    width: 240px !important; /* Чтобы даже на самых маленьких экранах смотрелось идеально */
+  }
+}
