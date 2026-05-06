@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habee App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app">
+
+<section id="intro-screen" class="screen active">
+  <video id="intro-video" class="intro-video" autoplay muted playsinline>
+    <source src="intro.mp4" type="video/mp4">
+  </video>
+</section>
+
+    <!-- START SCREEN -->
+    <section id="start-screen" class="screen">
+      <h1>Let’s get started!</h1>
+      <div class="button-group">
+        <button class="secondary-btn" onclick="showScreen('login-screen')">Login</button>
+        <button class="main-btn" onclick="showScreen('register-screen')">New User</button>
+      </div>
+    </section>
+
+    <!-- LOGIN -->
+    <section id="login-screen" class="screen">
+  <form onsubmit="submitLogin(); return false;">
+      <button type="button" class="back-btn" onclick="showScreen('start-screen')">Back</button>
+      <h1>Login</h1>
+
+      <input
+  id="login-email"
+  name="email"
+  type="email"
+  placeholder="Email"
+  autocomplete="email"
+  
+>
+
+      <div class="password-wrapper">
+        <input
+  id="login-password"
+  name="password"
+  type="password"
+  placeholder="Password"
+  autocomplete="current-password"
+  
+>
+        <button type="button" class="eye-btn" onclick="togglePassword('login-password', this)">🙉</button>
+      </div>
+
+	<label class="remember-me-container">
+          <input type="checkbox" id="remember-me">
+          <div class="checkmark"></div>
+          <span class="remember-me-label">Remember me</span>
+        </label>
+
+      <button type="submit" class="main-btn">Get Started</button>
+  </form>
+</section>
+  
+
+    <!-- REGISTER -->
+
+    <section id="register-screen" class="screen">
+  <form onsubmit="submitRegister(); return false;">
+      <button type="button" class="back-btn" onclick="showScreen('start-screen')">Back</button>
+      <h1>Register</h1>
+
+      <input
+  id="register-name"
+  name="name"
+  type="text"
+  placeholder="Name"
+  autocomplete="name"
+  
+>
+
+      <input
+  id="register-email"
+  name="email"
+  type="email"
+  placeholder="Email"
+  autocomplete="email"
+  
+>
+
+      <div class="password-wrapper">
+        <input
+  id="register-password"
+  name="password"
+  type="password"
+  placeholder="Password"
+  autocomplete="new-password"
+  
+>
+        <button type="button" class="eye-btn" onclick="togglePassword('register-password', this)">🙉</button>
+      </div>
+
+      <button type="submit" class="main-btn">Get Started</button>
+  </form>
+</section>
+   
+
+    <!-- HABITS -->
+<section id="habits-screen" class="screen app-screen">
+  <div class="app-header">
+    <h2>Habits</h2>
+  </div>
+
+  <div class="app-content habits-content">
+
+    <div class="habits-calendar-bar">
+      <button type="button" class="calendar-arrow-icon" onclick="changeHabitDays(-1)">‹</button>
+
+      <div class="habits-days-row" id="habits-days-row"></div>
+
+      <button type="button" class="calendar-arrow-icon" onclick="changeHabitDays(1)">›</button>
+    </div>
+
+    <button type="button" class="today-btn" onclick="goToToday()">
+      Today
+    </button>
+
+    <button type="button" class="secondary-btn habits-calendar-btn" onclick="openHabitsCalendar()">
+      📅 Open Calendar
+    </button>
+
+    <div class="habits-divider"></div>
+
+    <button type="button" class="main-btn habits-add-btn" onclick="openChooseHabitScreen()">
+      + Add Habit
+    </button>
+
+    <div class="habits-list" id="habits-list"></div>
+
+<div class="daily-challenge-container">
+      <div class="challenge-card">
+        <div class="challenge-header">
+          <img src="images/bee.png" alt="Bee" class="challenge-bee">
+          <div class="challenge-text">
+            <h3>Daily Challenge</h3>
+            <p id="challenge-desc">Loading challenge...</p>
+          </div>
+        </div>
+        <button id="challenge-btn" class="main-btn" onclick="completeChallenge()">Complete</button>
+        <div id="challenge-reward" class="challenge-reward" style="display: none;">+15 points! 🐝</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CHOOSE HABIT SCREEN (ШАБЛОНЫ) -->
+<section id="choose-habit-screen" class="screen app-screen">
+  <div class="add-habit-header">
+    <button type="button" class="add-habit-close" onclick="showScreen('habits-screen')">✕</button>
+    <h2>New Habit</h2>
+  </div>
+
+  <div class="app-content" style="padding-bottom: 120px;">
+    <button type="button" class="main-btn" style="margin-bottom: 24px; font-size: 18px; padding: 16px; border-radius: 18px;" onclick="openAddHabitScreen(null)">
+      ✨ Create Custom Habit
+    </button>
+
+    <h3 style="color: #59351F; margin-bottom: 16px; font-size: 18px;">Or choose a template:</h3>
+
+    <!-- Категория: Health & Body -->
+    <div class="category-accordion">
+      <button class="category-header" onclick="toggleCategory('cat-health', this)">
+        🏃‍♀️ Health & Body <span class="category-arrow">▾</span>
+      </button>
+      <div class="category-content" id="cat-health"></div>
+    </div>
+
+    <!-- Категория: Mental Well-being -->
+    <div class="category-accordion">
+      <button class="category-header" onclick="toggleCategory('cat-mental', this)">
+        🧘‍♀️ Mental Well-being <span class="category-arrow">▾</span>
+      </button>
+      <div class="category-content" id="cat-mental"></div>
+    </div>
+
+    <!-- Категория: Study & Focus -->
+    <div class="category-accordion">
+      <button class="category-header" onclick="toggleCategory('cat-study', this)">
+        📚 Study & Focus <span class="category-arrow">▾</span>
+      </button>
+      <div class="category-content" id="cat-study"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ADD HABIT SCREEN -->
+<section id="add-habit-screen" class="screen app-screen">
+  <div class="add-habit-header">
+    <button type="button" class="add-habit-close" onclick="closeAddHabitScreen()">✕</button>
+    <h2>Custom Habit</h2>
+  </div>
+
+  <div class="app-content add-habit-content">
+
+    <div class="add-habit-card habit-main-card">
+      <input
+         id="habit-emoji-input"
+         class="habit-emoji-input"
+         type="text"
+         inputmode="text"
+         autocomplete="off"
+         maxlength="4"
+         placeholder="⭐"
+      >
+
+      <div class="habit-main-fields">
+        <input
+          id="habit-name-input"
+          class="habit-name-main-input"
+          type="text"
+          placeholder="Habit name"
+        >
+
+        <textarea
+          id="habit-description-input"
+          class="habit-description-input"
+          placeholder="Description (Optional)"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="add-habit-card">
+      <label>Goal Period</label>
+      <select id="habit-goal-period">
+        <option value="day">Day-Long</option>
+        <option value="week">Week-Long</option>
+        <option value="month">Month-Long</option>
+      </select>
+
+      <label>Goal Value</label>
+      <div class="goal-value-row">
+        <input id="habit-goal-value" type="number" min="1" value="1">
+        <span>/ Day</span>
+      </div>
+
+      <label>Task Days</label>
+      <select id="habit-task-type" onchange="toggleHabitTaskOptions()">
+        <option value="everyday">Every day</option>
+        <option value="weekdays">Specific days of the week</option>
+        <option value="monthdays">Specific days of the month</option>
+      </select>
+
+      <div id="habit-weekdays-options" class="habit-days-options" style="display: none;">
+        <button type="button" onclick="toggleHabitOption(this)" data-value="Mon">Mon</button>
+        <button type="button" onclick="toggleHabitOption(this)" data-value="Tue">Tue</button>
+        <button type="button" onclick="toggleHabitOption(this)" data-value="Wed">Wed</button>
+        <button type="button" onclick="toggleHabitOption(this)" data-value="Thu">Thu</button>
+        <button type="button" onclick="toggleHabitOption(this)" data-value="Fri">Fri</button>
+        <button type="button" onclick="toggleHabitOption(this)" data-value="Sat">Sat</button>
+        <button type="button" onclick="toggleHabitOption(this)" data-value="Sun">Sun</button>
+      </div>
+
+      <div id="habit-monthdays-options" class="habit-monthdays-options" style="display: none;">
+        <button type="button" class="select-all-days-btn" onclick="selectAllMonthDays()">Select all</button>
+        <div id="month-days-grid" class="month-days-grid"></div>
+      </div>
+    </div>
+
+    <div class="add-habit-card">
+      <h3>Habit Term</h3>
+
+      <div class="habit-term-row">
+        <div>
+          <label>Start Date</label>
+          <input id="habit-start-date" type="date">
+        </div>
+
+        <div>
+          <label>End Date</label>
+          <input id="habit-end-date" type="date">
+        </div>
+      </div>
+
+      <button type="button" class="secondary-btn no-end-btn" onclick="setHabitNoEnd()">
+        No End
+      </button>
+    </div>
+
+    <button type="button" class="main-btn save-habit-full-btn" onclick="saveHabit()">
+      Save
+    </button>
+
+  </div>
+</section>
+      
+       <!-- PLANNER -->
+<section id="planner-screen" class="screen app-screen">
+  <div class="app-header">
+  <h2>Task Planner</h2>
+</div>
+
+  <div class="app-content planner-main-content">
+    <div class="planner-layout">
+
+      <!-- LEFT: SCHEDULE -->
+      <div class="planner-left">
+  <div class="planner-schedule-full">
+
+    <div class="schedule-title-wrap">
+      <button type="button" class="schedule-title-box" onclick="toggleScheduleDropdown()">
+        <span id="current-schedule-name">Schedule</span>
+        <span class="schedule-dropdown-arrow">▾</span>
+      </button>
+
+      <button type="button" class="schedule-edit-btn" onclick="enableScheduleNameEdit()">✎</button>
+      <button type="button" class="schedule-save-btn" id="schedule-save-btn" onclick="saveScheduleName()" style="display: none;">Save</button>
+    </div>
+
+    <div class="schedule-name-edit-wrap" id="schedule-name-edit-wrap" style="display: none;">
+      <input
+        type="text"
+        id="schedule-name-input"
+        class="schedule-name-input"
+        placeholder="Enter schedule name"
+        onkeydown="if(event.key === 'Enter') saveScheduleName()"
+      >
+    </div>
+
+    <div class="schedule-dropdown" id="schedule-dropdown" style="display: none;">
+      <div class="schedule-dropdown-list" id="schedule-dropdown-list">
+        <button type="button" class="schedule-dropdown-item active">Schedule</button>
+      </div>
+
+      <button type="button" class="schedule-add-new-btn" onclick="addNewSchedule()">
+        + Add new schedule
+      </button>
+    </div>
+
+    <div class="schedule-list" id="schedule-list">
+            <div class="time-block"><span>5:00 AM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>6:00 AM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>7:00 AM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>8:00 AM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>9:00 AM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>10:00 AM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>11:00 AM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>12:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>1:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>2:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>3:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>4:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>5:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>6:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>7:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>8:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>9:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+            <div class="time-block"><span>10:00 PM</span><div class="lines"><div class="schedule-editable"></div><div class="schedule-editable"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: TABS + PANEL -->
+      <div class="planner-right">
+        <div class="planner-side-tabs">
+          <button class="planner-tab-btn" onclick="togglePlannerPanel('quick-panel', this)">
+            <span class="planner-tab-label">Quick Ticks</span>
+            <span class="planner-tab-arrow">‹</span>
+          </button>
+
+          <button class="planner-tab-btn" onclick="togglePlannerPanel('tasks-panel', this)">
+            <span class="planner-tab-label">Tasks</span>
+            <span class="planner-tab-arrow">‹</span>
+          </button>
+
+          <button class="planner-tab-btn" onclick="togglePlannerPanel('projects-panel', this)">
+            <span class="planner-tab-label">Projects</span>
+            <span class="planner-tab-arrow">‹</span>
+          </button>
+        </div>
+
+        <div class="planner-panels">
+          <div id="quick-panel" class="planner-panel">
+            <div class="planner-panel-header">
+              <h3>Quick Ticks <span>(&lt;5 min)</span></h3>
+            </div>
+            <div class="planner-items" id="quick-items"></div>
+            <button class="planner-add-btn" onclick="addPlannerItem('quick-items')">+ Add item</button>
+          </div>
+
+          <div id="tasks-panel" class="planner-panel">
+            <div class="planner-panel-header">
+              <h3>Tasks <span>(5–30 min)</span></h3>
+            </div>
+            <div class="planner-items" id="tasks-items"></div>
+            <button class="planner-add-btn" onclick="addPlannerItem('tasks-items')">+ Add item</button>
+          </div>
+
+          <div id="projects-panel" class="planner-panel">
+            <div class="planner-panel-header">
+              <h3>Projects <span>(30+ min)</span></h3>
+            </div>
+            <div class="planner-items" id="projects-items"></div>
+            <button class="planner-add-btn" onclick="addPlannerItem('projects-items')">+ Add item</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <template id="planner-row-template">
+      <div class="planner-row">
+        <input type="checkbox">
+        <div class="planner-row-text" contenteditable="true"></div>
+        <button type="button" class="planner-delete-btn">🗑</button>
+      </div>
+    </template>
+  </div>
+</section>
+
+
+<!-- FOCUS -->
+    <section id="focus-screen" class="screen app-screen">
+      <div class="app-header">
+        <h2>Focus</h2>
+      </div>
+
+      <div class="app-content focus-content" id="focus-content">
+        <div class="focus-controls">
+          <div class="focus-time-tabs">
+            <button type="button" class="focus-time-btn active" data-focus-minutes="15" onclick="setFocusTime(15)">15 min</button>
+            <button type="button" class="focus-time-btn" data-focus-minutes="30" onclick="setFocusTime(30)">30 min</button>
+            <button type="button" class="focus-time-btn" data-focus-minutes="60" onclick="setFocusTime(60)">1 hour</button>
+          </div>
+          <button type="button" class="secondary-btn focus-custom-btn" onclick="openCustomFocusTime()">
+            Custom Time
+          </button>
+        </div>
+
+        <button type="button" class="focus-exit-btn" onclick="cancelFocusSession()" style="display: none;" id="focus-exit-btn">
+          ✕
+        </button>
+
+        <div class="focus-main">
+          <div class="focus-visual">
+            <!-- ДЕРЕВО -->
+            <div class="focus-tree">
+              <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <clipPath id="treeReveal">
+                    <rect id="revealRect" x="0" y="450" width="500" height="0"></rect>
+                  </clipPath>
+                </defs>
+                <g class="tree-roots" stroke="#4a3220" stroke-width="4" fill="none" stroke-linecap="round">
+                  <path d="M250,450 Q230,470 190,480" />
+                  <path d="M250,450 Q245,485 225,495" />
+                  <path d="M250,450 Q255,485 275,495" />
+                  <path d="M250,450 Q270,470 310,480" />
+                </g>
+                <g clip-path="url(#treeReveal)">
+                  <g class="tree-branches" stroke="#5a3e28" fill="none" stroke-linecap="round">
+                    <path d="M250,452 C250,400 250,300 250,150" stroke-width="15" />
+                    <g class="wind-sway">
+                      <path d="M250,380 Q200,370 140,340" stroke-width="8" />
+                      <path d="M250,380 Q300,370 360,340" stroke-width="8" />
+                      <path d="M250,300 Q210,270 160,220" stroke-width="7" />
+                      <path d="M250,300 Q290,270 340,220" stroke-width="7" />
+                      <path d="M250,220 Q245,150 260,85" stroke-width="5" />
+                    </g>
+                  </g>
+                  <g class="tree-leaves" opacity="0.95">
+                    <g class="wind-sway">
+                      <ellipse cx="140" cy="340" rx="45" ry="28" fill="#3d6b4a" transform="rotate(-12,140,340)" />
+                      <ellipse cx="360" cy="340" rx="45" ry="28" fill="#3d6b4a" transform="rotate(12,360,340)" />
+                      <ellipse cx="160" cy="220" rx="40" ry="30" fill="#4a7c59" />
+                      <ellipse cx="340" cy="220" rx="40" ry="30" fill="#4a7c59" />
+                      <ellipse cx="260" cy="85" rx="50" ry="40" fill="#4a7c59" />
+                      <circle cx="110" cy="330" r="5" fill="#3d6b4a" />
+                      <circle cx="390" cy="340" r="4" fill="#3d6b4a" />
+                      <circle cx="210" cy="70" r="6" fill="#4a7c59" />
+                      <circle cx="280" cy="60" r="4" fill="#4a7c59" />
+                    </g>
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            <!-- ПЧЕЛКА -->
+            <div class="focus-bee">
+              <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" style="overflow: visible;">
+                <defs>
+                  <filter id="whiteGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#FFFEE8" flood-opacity="1" />
+                    <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="white" flood-opacity="1" />
+                  </filter>
+                  <linearGradient id="beeBodyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#FFD700"/>
+                    <stop offset="50%" stop-color="#FFB800"/>
+                    <stop offset="100%" stop-color="#E59400"/>
+                  </linearGradient>
+                  <linearGradient id="wingGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+                    <stop offset="100%" stop-color="#D4EFFF" stop-opacity="0.4"/>
+                  </linearGradient>
+                </defs>
+                <path id="orbitPath" fill="none" d="M 250, 250 m -115, 0 a 115,115 0 1,1 230,0 a 115,115 0 1,1 -230,0" />
+                <g id="bee" filter="url(#whiteGlow)">
+                  <animateMotion dur="10s" repeatCount="indefinite" rotate="auto">
+                    <mpath href="#orbitPath"/>
+                  </animateMotion>
+                  <g transform="rotate(90) scale(1.8)">
+                    <ellipse cx="-11" cy="-8" rx="13" ry="6" fill="url(#wingGrad)" stroke="#E0F0FF" stroke-width="0.5">
+                      <animateTransform attributeName="transform" type="rotate" values="-32 -11 -8; -55 -11 -8; -32 -11 -8" dur="0.1s" repeatCount="indefinite"/>
+                    </ellipse>
+                    <ellipse cx="11" cy="-8" rx="13" ry="6" fill="url(#wingGrad)" stroke="#E0F0FF" stroke-width="0.5">
+                      <animateTransform attributeName="transform" type="rotate" values="32 11 -8; 55 11 -8; 32 11 -8" dur="0.1s" repeatCount="indefinite"/>
+                    </ellipse>
+                    <ellipse cx="0" cy="2" rx="7.5" ry="11" fill="url(#beeBodyGrad)" stroke="#59351F" stroke-width="0.8"/>
+                    <rect x="-7.5" y="-2" width="15" height="3.5" rx="1" fill="#2D1B0E"/>
+                    <rect x="-7.5" y="4.5" width="15" height="3.5" rx="1" fill="#2D1B0E"/>
+                    <ellipse cx="0" cy="-8" rx="6" ry="5.5" fill="#FFB800" stroke="#59351F" stroke-width="0.7"/>
+                    <circle cx="0" cy="-15.5" r="5.5" fill="#FFD700" stroke="#59351F" stroke-width="0.7"/>
+                    <circle cx="-2.8" cy="-17" r="1.8" fill="#000000"/>
+                    <circle cx="2.8" cy="-17" r="1.8" fill="#000000"/>
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            <div class="focus-timer-display" id="focus-timer">15:00</div>
+            <button type="button" class="focus-start-btn" onclick="startFocusSession()">Start</button>
+          </div>
+        </div>
+        <div class="focus-message" id="focus-message"></div>
+      </div>
+    </section>
+
+<!-- LEADERBOARD -->
+    <section id="leaderboard-screen" class="screen app-screen">
+      <div class="app-header">
+        <h2>Leaderboard</h2>
+      </div>
+
+      <div class="app-content">
+        <div style="text-align: center; font-size: 18px; font-weight: 700; color: #59351F; margin: 10px 0 24px;">
+  Your current score: <span id="leaderboard-score" style="font-size: 24px; color: #E59400; margin-left: 6px;">0</span> 🐝
+</div>
+        <div class="card" style="text-align: center; border: none; background: transparent; padding: 0;">
+          <h3 style="margin: 0; color: #59351F;">Top 10 of this week</h3>
+        </div>
+        
+        <!-- СЮДА БУДУТ ПРИЛЕТАТЬ ТОП-10 ИЗ БАЗЫ ДАННЫХ -->
+        <div id="leaderboard-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;"></div>
+      </div>
+    </section>     
+
+    <!-- PROFILE -->
+   <section id="profile-screen" class="screen app-screen">
+  <div class="app-header">
+    <h2>Profile</h2>
+  </div>
+
+  <div class="app-content">
+    <div class="card profile-card">
+      <div class="profile-header">
+        <h3>Profile information</h3>
+        <button class="edit-btn" onclick="enableProfileEdit()">✎</button>
+      </div>
+
+      <label for="profile-name">Name</label>
+      <input
+        id="profile-name"
+        type="text"
+        placeholder="Enter your name"
+        disabled
+        onkeydown="if(event.key === 'Enter') saveProfile()"
+      >
+
+      <label for="profile-major">Major</label>
+      <select
+        id="profile-major"
+        onchange="toggleCustomMajor()"
+        disabled
+        onkeydown="if(event.key === 'Enter') saveProfile()"
+      >
+        <option value="">Select your major</option>
+        <option value="Aerospace Engineering">Aerospace Engineering</option>
+        <option value="Chemical Engineering">Chemical Engineering</option>
+        <option value="Civil Engineering">Civil Engineering</option>
+        <option value="Electrical Engineering">Electrical Engineering</option>
+        <option value="Engineering Systems And Management">Engineering Systems And Management</option>
+        <option value="Mechanical Engineering">Mechanical Engineering</option>
+        <option value="Energy Engineering">Energy Engineering</option>
+        <option value="Petroleum Engineering">Petroleum Engineering</option>
+        <option value="Chemistry">Chemistry</option>
+        <option value="Physics">Physics</option>
+        <option value="Earth and Planetary Sciences">Earth and Planetary Sciences</option>
+        <option value="Computer Engineering">Computer Engineering</option>
+        <option value="Robotics And Artificial Intelligence (AI)">Robotics And Artificial Intelligence (AI)</option>
+        <option value="Computer Science">Computer Science</option>
+        <option value="Applied Mathematics, Statistics, and Data Science">Applied Mathematics, Statistics, and Data Science</option>
+        <option value="Biomedical Engineering">Biomedical Engineering</option>
+        <option value="Cell and Molecular Biology">Cell and Molecular Biology</option>
+        <option value="custom">Other (type manually)</option>
+      </select>
+
+      <input
+        id="custom-major"
+        type="text"
+        placeholder="Type your major"
+        style="display: none;"
+        disabled
+        onkeydown="if(event.key === 'Enter') saveProfile()"
+      >
+
+      <button id="profile-save-btn" class="main-btn profile-save-btn" onclick="saveProfile()" style="display: none;">
+        Save
+      </button>
+    </div>
+
+    <button class="secondary-btn profile-action-btn" onclick="openSettings()">
+      Settings
+    </button>
+
+    <button class="secondary-btn profile-action-btn" onclick="openAbout()">
+      About App
+    </button>
+
+   <button class="secondary-btn profile-action-btn danger-btn" onclick="logout()">
+      Log Out
+   </button>
+
+  </div>
+</section>
+
+ 
+    <!-- NAVIGATION -->
+   <nav class="bottom-nav" id="bottom-nav">
+  <button onclick="showScreen('habits-screen')" data-screen="habits-screen">
+    <img src="images/habits.png" class="nav-icon" alt="Habits">
+  </button>
+
+  <button onclick="showScreen('planner-screen')" data-screen="planner-screen">
+    <img src="images/planner.png" class="nav-icon" alt="Planner">
+  </button>
+
+  <button onclick="showScreen('focus-screen')" data-screen="focus-screen">
+    <img src="images/focus.png" class="nav-icon" alt="Focus">
+  </button>
+
+  <button onclick="showScreen('leaderboard-screen')" data-screen="leaderboard-screen">
+    <img src="images/leaderboard.png" class="nav-icon" alt="Leaderboard">
+  </button>
+
+  <button onclick="showScreen('profile-screen')" data-screen="profile-screen">
+    <img src="images/profile.png" class="nav-icon" alt="Profile">
+  </button>
+</nav>
+
+  </div>
+
+  <script src="script.js"></script>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+  from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, collection, query, where, getDocs } 
+  from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAzvTZ1ZUwE-zGMxxs6dHwdPCc7N_Rqlc4",
+    authDomain: "habee-app.firebaseapp.com",
+    projectId: "habee-app",
+    storageBucket: "habee-app.firebasestorage.app",
+    messagingSenderId: "548391028227",
+    appId: "1:548391028227:web:75dbcc56b11b831bc0f036"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Делаем функции доступными для нашего script.js
+  window.auth = auth;
+  window.db = db;
+  window.doc = doc;
+  window.setDoc = setDoc;
+  window.collection = collection;
+  window.query = query;
+  window.where = where;
+  window.getDocs = getDocs;
+
+  window.register = async function(email, password) {
+    const name = document.getElementById('register-name').value;
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      await setDoc(doc(db, "users", user.uid), {
+        name: name,
+        email: email,
+        major: "",
+        createdAt: new Date().toISOString()
+      });
+      alert("Registered!");
+      loadProfile();
+      initHabits();
+      initPlanner();
+      showScreen('profile-screen');
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  window.login = function(email, password) {
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        alert("Logged in!");
+        loadProfile();
+        initHabits();
+        initPlanner();
+        showScreen('habits-screen');
+      })
+      .catch(error => alert(error.message));
+  }
+</script>
+<div id="overlay" class="overlay" onclick="closeAllPopups()"></div>
+
+<div id="about-popup" class="popup">
+  <button class="close-btn" onclick="closeAbout()">✕</button>
+
+  <h2>About Habeet</h2>
+
+  <p>
+    Habeet is a simple productivity app designed especially for students.
+    We understand how overwhelming it can be to stay organized, manage tasks,
+    and keep focus while balancing studies and personal life.
+  </p>
+
+  <p>
+    Our goal is to make habit tracking, planning, and focus feel lighter,
+    more visual, and even a little enjoyable.
+  </p>
+
+  <p>
+    This app is currently still in development.
+    It was created by first-year students as part of the Grand Challenges project.
+  </p>
+
+  <p>
+    Thank you for using Habeet 💛
+  </p>
+</div>
+
+<!-- SETTINGS POPUP -->
+<div id="settings-popup" class="popup">
+  <button class="close-btn" onclick="closeSettings()">✕</button>
+
+  <h2>Settings</h2>
+
+  <button class="secondary-btn settings-btn" onclick="openChangePassword()">
+    Change Password
+  </button>
+
+  <button class="secondary-btn settings-btn danger-btn" onclick="deleteAccount()">
+    Delete Account
+  </button>                  
+</div>
+
+<!-- HABITS CALENDAR POPUP -->
+<div id="habits-calendar-popup" class="popup">
+  <button class="close-btn" onclick="closeHabitsCalendar()">✕</button>
+
+  <h2>Select a Date</h2>
+
+  <input id="habits-date-picker" type="date">
+
+  <button type="button" class="main-btn" onclick="applyHabitDate()">
+    Choose Date
+  </button>
+</div>
+
+<div id="focus-time-popup" class="popup focus-time-popup">
+  <button class="close-btn" onclick="closeCustomFocusTime()">✕</button>
+  <h2>Custom Time</h2>
+
+  <div class="iphone-picker">
+    <div class="picker-col">
+      <select id="custom-focus-hours"></select>
+      <span>h</span>
+    </div>
+    <div class="picker-col">
+      <select id="custom-focus-minutes"></select>
+      <span>m</span>
+    </div>
+    <div class="picker-col">
+      <select id="custom-focus-seconds"></select>
+      <span>s</span>
+    </div>
+  </div>
+
+  <button type="button" class="main-btn" onclick="applyCustomFocusTime()">
+    Set Time
+  </button>
+</div>
+
+</body>
+</html>
