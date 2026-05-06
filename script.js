@@ -685,7 +685,8 @@ function initHabits() {
 }
 
 function getDefaultScheduleLines() {
-  return Array.from({ length: 18 }, () => ['', '']);
+  // Выдаем 36 пустых строк вместо матрешек
+  return Array(36).fill('');
 }
 
 function getDefaultPlannerItems() {
@@ -722,17 +723,23 @@ function getSchedules() {
 function saveSchedules(schedules) {
   const uid = window.auth?.currentUser?.uid;
   const key = getUserKey('habeeSchedules');
-  
-  // 1. Сохраняем локально в браузер
-  localStorage.setItem(key, JSON.stringify(schedules));
 
-  // 2. СРАЗУ отправляем в облако Firebase
+  // ЛЕЧИМ ОШИБКУ FIREBASE: убираем массивы внутри массивов (матрешки)
+  const safeSchedules = schedules.map(sched => {
+     if (sched.lines && Array.isArray(sched.lines[0])) {
+         sched.lines = sched.lines.flat(); // Делает плоский список
+     }
+     return sched;
+  });
+
+  localStorage.setItem(key, JSON.stringify(safeSchedules));
+
   if (uid && window.db && window.setDoc) {
-    console.log("Отправка Планнера в облако..."); // для отладки
+    console.log("Отправка Планнера в облако...");
     window.setDoc(window.doc(window.db, "user_data", uid), {
-      schedules: schedules
+      schedules: safeSchedules
     }, { merge: true })
-    .then(() => console.log("Планнер успешно в облаке!"))
+    .then(() => console.log("Планнер успешно в облаке! 🎉"))
     .catch(e => console.error("Ошибка Планнера:", e));
   }
 }
@@ -793,14 +800,9 @@ function renderScheduleLines() {
   const lines = document.querySelectorAll('.schedule-editable');
 
   lines.forEach((line, index) => {
-    const blockIndex = Math.floor(index / 2);
-    const lineIndex = index % 2;
-
-    if (schedule.lines[blockIndex] && schedule.lines[blockIndex][lineIndex] !== undefined) {
-      line.innerText = schedule.lines[blockIndex][lineIndex];
-    } else {
-      line.innerText = '';
-    }
+    // Подстраиваемся под новый безопасный формат
+    const flatLines = Array.isArray(schedule.lines[0]) ? schedule.lines.flat() : schedule.lines;
+    line.innerText = flatLines[index] || '';
   });
 }
 
@@ -812,12 +814,14 @@ function saveCurrentScheduleLines() {
   const lines = document.querySelectorAll('.schedule-editable');
   const updatedLines = [];
 
-  for (let i = 0; i < lines.length; i += 2) {
-    updatedLines.push([
-      lines[i] ? lines[i].innerText : '',
-      lines[i + 1] ? lines[i + 1].innerText : ''
-    ]);
-  }
+  // Просто сохраняем всё подряд в один список без вложенности
+  lines.forEach(line => {
+    updatedLines.push(line.innerText || '');
+  });
+
+  schedules[scheduleIndex].lines = updatedLines;
+  saveSchedules(schedules);
+}
 
   schedules[scheduleIndex].lines = updatedLines;
   saveSchedules(schedules);
