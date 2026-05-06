@@ -689,7 +689,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
   from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-  // ДОБАВИЛИ getDoc (чтобы скачивать данные)
   import { getFirestore, doc, setDoc, collection, query, where, getDocs, getDoc } 
   from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
@@ -715,7 +714,7 @@
   window.where = where;
   window.getDocs = getDocs;
 
-  // НОВАЯ ФУНКЦИЯ: Скачивает твои привычки из облака
+  // Функция скачивания данных при входе
   window.syncDataFromCloud = async function(uid) {
     try {
       const docSnap = await getDoc(doc(db, "user_data", uid));
@@ -723,6 +722,7 @@
         const data = docSnap.data();
         if (data.habits) localStorage.setItem('habeeHabits_' + uid, JSON.stringify(data.habits));
         if (data.schedules) localStorage.setItem('habeeSchedules_' + uid, JSON.stringify(data.schedules));
+        if (data.score !== undefined) localStorage.setItem('habeeHabitScore_' + uid, String(data.score));
       }
     } catch (e) {
       console.error("Sync error", e);
@@ -735,31 +735,21 @@
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       await setDoc(doc(db, "users", user.uid), {
-        name: name,
-        email: email,
-        major: "",
-        createdAt: new Date().toISOString()
+        name: name, email: email, major: "", createdAt: new Date().toISOString()
       });
       alert("Registered!");
-      loadProfile();
-      initHabits();
-      initPlanner();
+      loadProfile(); initHabits(); initPlanner();
       showScreen('profile-screen');
-    } catch (error) {
-      alert(error.message);
-    }
+    } catch (error) { alert(error.message); }
   }
 
   window.login = function(email, password) {
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
-        // МАГИЯ: Ждем скачивания данных из облака перед входом
+        // Ждем скачивания данных перед тем как показать главный экран
         await window.syncDataFromCloud(userCredential.user.uid);
-        
         alert("Logged in!");
-        loadProfile();
-        initHabits();
-        initPlanner();
+        loadProfile(); initHabits(); initPlanner();
         showScreen('habits-screen');
       })
       .catch(error => alert(error.message));
