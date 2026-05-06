@@ -689,7 +689,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
   from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, collection, query, where, getDocs } 
+  // ДОБАВИЛИ getDoc (чтобы скачивать данные)
+  import { getFirestore, doc, setDoc, collection, query, where, getDocs, getDoc } 
   from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -705,7 +706,6 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Делаем функции доступными для нашего script.js
   window.auth = auth;
   window.db = db;
   window.doc = doc;
@@ -714,6 +714,20 @@
   window.query = query;
   window.where = where;
   window.getDocs = getDocs;
+
+  // НОВАЯ ФУНКЦИЯ: Скачивает твои привычки из облака
+  window.syncDataFromCloud = async function(uid) {
+    try {
+      const docSnap = await getDoc(doc(db, "user_data", uid));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.habits) localStorage.setItem('habeeHabits_' + uid, JSON.stringify(data.habits));
+        if (data.schedules) localStorage.setItem('habeeSchedules_' + uid, JSON.stringify(data.schedules));
+      }
+    } catch (e) {
+      console.error("Sync error", e);
+    }
+  };
 
   window.register = async function(email, password) {
     const name = document.getElementById('register-name').value;
@@ -738,7 +752,10 @@
 
   window.login = function(email, password) {
     signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
+      .then(async (userCredential) => {
+        // МАГИЯ: Ждем скачивания данных из облака перед входом
+        await window.syncDataFromCloud(userCredential.user.uid);
+        
         alert("Logged in!");
         loadProfile();
         initHabits();
@@ -748,6 +765,7 @@
       .catch(error => alert(error.message));
   }
 </script>
+	
 <div id="overlay" class="overlay" onclick="closeAllPopups()"></div>
 
 <div id="about-popup" class="popup">
