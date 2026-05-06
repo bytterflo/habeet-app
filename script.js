@@ -303,12 +303,11 @@ function getHabits() {
 
 function saveHabits(habits) {
   localStorage.setItem(getUserKey('habeeHabits'), JSON.stringify(habits));
-  
-  // Отправляем копию привычек в облако
+  // Отправка в облако
   if (window.auth && window.auth.currentUser && window.setDoc) {
     window.setDoc(window.doc(window.db, "user_data", window.auth.currentUser.uid), {
       habits: habits
-    }, { merge: true }).catch(e => console.log("Cloud save error:", e));
+    }, { merge: true }).catch(e => console.log("Habit cloud error:", e));
   }
 }
 
@@ -337,6 +336,12 @@ function getHabitScore() {
 function saveHabitScore(score) {
   localStorage.setItem(getUserKey('habeeHabitScore'), String(score));
   localStorage.setItem(getUserKey('habeeScoreWeek'), getCurrentWeekId());
+  // Отправка в облако (чтобы очки тоже не пропадали)
+  if (window.auth && window.auth.currentUser && window.setDoc) {
+    window.setDoc(window.doc(window.db, "user_data", window.auth.currentUser.uid), {
+      score: score
+    }, { merge: true }).catch(e => console.log("Score cloud error:", e));
+  }
 }
 
 async function addHabitScore(points) {
@@ -715,12 +720,11 @@ function getSchedules() {
 
 function saveSchedules(schedules) {
   localStorage.setItem(getUserKey('habeeSchedules'), JSON.stringify(schedules));
-  
-  // Отправляем копию расписаний в облако
+  // Отправка в облако
   if (window.auth && window.auth.currentUser && window.setDoc) {
     window.setDoc(window.doc(window.db, "user_data", window.auth.currentUser.uid), {
       schedules: schedules
-    }, { merge: true }).catch(e => console.log("Cloud save error:", e));
+    }, { merge: true }).catch(e => console.log("Planner cloud error:", e));
   }
 }
 
