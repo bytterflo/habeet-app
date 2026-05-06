@@ -288,6 +288,7 @@ let selectedHabitDate = new Date();
 let habitsStartDate = new Date();
 habitsStartDate.setHours(0, 0, 0, 0);
 
+let currentScheduleId = 'schedule-1';
 
 function formatHabitDateKey(date) {
   const year = date.getFullYear();
