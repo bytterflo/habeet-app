@@ -731,12 +731,18 @@
 
   // === ВОЛШЕБНЫЙ АВТО-СИНХРОНИЗАТОР ===
   // Срабатывает сам в фоне, когда открывается сайт
-  onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
+      console.log("Пользователь опознан, качаем данные...");
       await window.syncDataFromCloud(user.uid);
-      // Если мы на странице Привычек или Планнера — тихонько обновляем их
+      
+      // Перезапускаем инициализацию, чтобы данные из localStorage попали на экран
+      if (typeof loadProfile === 'function') loadProfile();
       if (typeof initHabits === 'function') initHabits();
-      if (typeof initPlanner === 'function') initPlanner();
+      if (typeof initPlanner === 'function') {
+         console.log("Обновляем Планнер новыми данными...");
+         initPlanner(); 
+      }
     }
   });
 
