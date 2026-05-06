@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Habee App</title>
   <link rel="stylesheet" href="style.css?v=2">
+	<style>
+    /* ЖЕЛЕЗОБЕТОННЫЙ ФИКС ПАНЕЛИ ДЛЯ ЛЮБЫХ ЭКРАНОВ */
+    .planner-panels {
+      right: 58px !important;
+      width: calc(100vw - 95px) !important; /* Сама высчитывает идеальную ширину */
+      max-width: 290px !important; /* Не дает ей стать слишком огромной на ПК */
+    }
+    .planner-panel {
+      right: 0 !important; 
+      left: auto !important;
+      width: 100% !important;
+    }
+  </style>
 </head>
 <body>
 
