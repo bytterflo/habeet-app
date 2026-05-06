@@ -687,7 +687,8 @@
 <!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+  // Сюда добавили onAuthStateChanged (наш шпион)
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } 
   from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, collection, query, where, getDocs, getDoc } 
   from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
@@ -714,7 +715,6 @@
   window.where = where;
   window.getDocs = getDocs;
 
-  // Функция скачивания данных при входе
   window.syncDataFromCloud = async function(uid) {
     try {
       const docSnap = await getDoc(doc(db, "user_data", uid));
@@ -728,6 +728,17 @@
       console.error("Sync error", e);
     }
   };
+
+  // === ВОЛШЕБНЫЙ АВТО-СИНХРОНИЗАТОР ===
+  // Срабатывает сам в фоне, когда открывается сайт
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      await window.syncDataFromCloud(user.uid);
+      // Если мы на странице Привычек или Планнера — тихонько обновляем их
+      if (typeof initHabits === 'function') initHabits();
+      if (typeof initPlanner === 'function') initPlanner();
+    }
+  });
 
   window.register = async function(email, password) {
     const name = document.getElementById('register-name').value;
@@ -746,7 +757,6 @@
   window.login = function(email, password) {
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
-        // Ждем скачивания данных перед тем как показать главный экран
         await window.syncDataFromCloud(userCredential.user.uid);
         alert("Logged in!");
         loadProfile(); initHabits(); initPlanner();
