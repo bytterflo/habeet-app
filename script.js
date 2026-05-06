@@ -823,10 +823,6 @@ function saveCurrentScheduleLines() {
   saveSchedules(schedules);
 }
 
-  schedules[scheduleIndex].lines = updatedLines;
-  saveSchedules(schedules);
-}
-
 function toggleScheduleDropdown() {
   const dropdown = document.getElementById('schedule-dropdown');
 
