@@ -303,6 +303,13 @@ function getHabits() {
 
 function saveHabits(habits) {
   localStorage.setItem(getUserKey('habeeHabits'), JSON.stringify(habits));
+  
+  // Отправляем копию привычек в облако
+  if (window.auth && window.auth.currentUser && window.setDoc) {
+    window.setDoc(window.doc(window.db, "user_data", window.auth.currentUser.uid), {
+      habits: habits
+    }, { merge: true }).catch(e => console.log("Cloud save error:", e));
+  }
 }
 
 // --- УМНЫЕ ОЧКИ И ЛИДЕРБОРД ---
@@ -708,6 +715,13 @@ function getSchedules() {
 
 function saveSchedules(schedules) {
   localStorage.setItem(getUserKey('habeeSchedules'), JSON.stringify(schedules));
+  
+  // Отправляем копию расписаний в облако
+  if (window.auth && window.auth.currentUser && window.setDoc) {
+    window.setDoc(window.doc(window.db, "user_data", window.auth.currentUser.uid), {
+      schedules: schedules
+    }, { merge: true }).catch(e => console.log("Cloud save error:", e));
+  }
 }
 
 function getCurrentSchedule() {
