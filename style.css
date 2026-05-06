@@ -569,23 +569,24 @@ select:disabled {
   position: absolute;
   top: 0;
   right: 58px;
-  width: 300px;
+  width: 270px; /* Немного сузили для идеальной мобильной версии */
   z-index: 30;
 }
 
 .planner-panel {
+  display: none;
   position: absolute;
   top: 0;
-  right: 0;
-  width: 300px;
-  min-height: 420px;
+  right: 0; /* ИСПРАВЛЕНО: убрали двойной сдвиг (раньше тут было 58px) */
+  width: 100%;
+  min-height: 450px;
   background: #FFFEE8;
   border: 2px solid #59351F;
-  border-radius: 18px 0 0 18px;
-  padding: 18px 14px;
+  border-radius: 22px 0 0 22px;
+  padding: 20px 16px;
   box-sizing: border-box;
-
-  display: none;
+  z-index: 100;
+  box-shadow: -5px 0 15px rgba(89, 53, 31, 0.1);
 }
 
 .planner-panel.active {
