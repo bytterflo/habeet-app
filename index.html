@@ -682,7 +682,7 @@
 
   </div>
 
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=999"></script>
 
 <!-- FIREBASE -->
 <script type="module">
@@ -740,11 +740,17 @@
     });
   };
 
-  onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, (user) => {
     if (user) {
       console.log("Включаем живую синхронизацию...");
       window.startRealtimeSync(user.uid);
       if (typeof loadProfile === 'function') loadProfile();
+
+      // МАГИЯ АВТОВХОДА: Если мы зависли на стартовом экране, а Firebase нас узнал - кидаем внутрь!
+      const activeScreen = document.querySelector('.screen.active');
+      if (activeScreen && (activeScreen.id === 'start-screen' || activeScreen.id === 'login-screen' || activeScreen.id === 'register-screen')) {
+         showScreen('habits-screen');
+      }
     }
   });
 
