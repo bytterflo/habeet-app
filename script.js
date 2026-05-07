@@ -1269,36 +1269,30 @@ function failFocusSession() {
   }
 }
 
-// --- ЗАГРУЗКА И ЗАСТАВКА (ИСПРАВЛЕНО) ---
+// --- ЗАГРУЗКА И ЗАСТАВКА (С АВТОВХОДОМ) ---
 document.addEventListener('DOMContentLoaded', function () {
   const introVideo = document.getElementById('intro-video');
 
-  // 1. Попытка переключить по окончании видео
-  if (introVideo) {
-    introVideo.onended = () => {
-      showScreen('start-screen');
-    };
-  }
-
-  // 2. Железобетонный план Б: переключить через 4 секунды
-  setTimeout(() => {
+  // Умная функция: решает, куда направить после видео
+  function goAfterIntro() {
     const currentScreen = document.querySelector('.screen.active');
     if (currentScreen && currentScreen.id === 'intro-screen') {
-      showScreen('start-screen');
+      // Если Firebase нас помнит - пускаем сразу в приложение!
+      if (window.auth && window.auth.currentUser) {
+        showScreen('habits-screen');
+      } else {
+        showScreen('start-screen'); // Если нет - на экран старта
+      }
     }
-  }, 4000);
-  
-  // 3. Загрузка сохраненного логина
-  const savedEmail = localStorage.getItem('rememberedEmail');
-  const savedPassword = localStorage.getItem('rememberedPassword');
-  if (savedEmail && savedPassword) {
-    const emailInput = document.getElementById('login-email');
-    const passwordInput = document.getElementById('login-password');
-    const rememberCheckbox = document.getElementById('remember-me');
-    if (emailInput) emailInput.value = savedEmail;
-    if (passwordInput) passwordInput.value = savedPassword;
-    if (rememberCheckbox) rememberCheckbox.checked = true;
   }
+
+  // 1. Переключаем по окончании видео
+  if (introVideo) {
+    introVideo.onended = goAfterIntro;
+  }
+
+  // 2. Железобетонный план Б: переключаем через 4 секунды
+  setTimeout(goAfterIntro, 4000);
 });
 
 // --- ЛИДЕРБОРД ---
